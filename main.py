@@ -17,7 +17,7 @@ CONTROLLER_ID = "vesta"
 LOG_FONT_SCALE = 1
 LOG_LINE_RETENTION = 20
 
-RUN_LOOP_PERIOD = 30
+RUN_LOOP_PERIOD = 5
 
 SCREEN_ROTATE = 180
 
@@ -161,6 +161,14 @@ def render_text_lines(display, lines, r, g, b, prefix=None, update=False):
     if update:
         display.update()
 
+def run_demo():
+    while True:
+        url = f"http://{controller_ip}:10000/run/demo/lines"
+        lines = urequests.get(url, timeout=4).json()['lines']
+        paint_background(display, 0, 0, 255)
+        render_text_lines(display, lines, 255, 255, 255, update=True)
+        time.sleep(0.5)
+
 def run():
     while True:
         (connected, ip) = attempt_wifi_connect()
@@ -175,6 +183,14 @@ def run():
     mode = get_current_mode()
     
     log_break()
+    
+    try:
+        if mode == 'demo':
+            log("Running demo mode...")
+            time.sleep(1)
+            run_demo()
+    except Exception as e:
+        print(f"Error running mode program: {e}")
 
 log("Hey, Tink!")
 log_break()
